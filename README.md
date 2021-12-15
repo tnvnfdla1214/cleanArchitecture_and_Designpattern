@@ -43,7 +43,7 @@ ViewModel 을 만드는 기준을 Activity 가 아닌 개별 View 를 기준으�
 2. Use cases : Use case란 내가 만들고자하는 시스템(혹은 서비스라고 하자)을 사용하는 클라이언트가 **그 시스템을 통해 하고자 하는 것**입니다. 예를 들어, '영화관' 이라는 서비스가 있다고 가정해봅시다. 영화관에서 손님(클라이언트)는 '영화 예매'를 할 수도 있고, '예매 취소'를 할 수도 있고, '환불', 심지어 '팝콘 사기'를 할 수도 있을 것입니다. 이 때, 이런 '영화 예매', '예매 취소', '환불', '팝콘 사기' 등등이, '영화관'이라는 시스템에 사용자가 요청할 수 있는, '영화관'의 Use case이다. Use Case는 이름만 보고 이게 무슨 기능을 가졌을지 짐작하고 구분할 수 있어야합니다.
 <img src = "https://user-images.githubusercontent.com/48902047/145939602-c0e77696-4682-4a6d-8338-a1c8f0d03d46.png">
 
-3. Interface Adapters (Presenters) : 인터페이스 어댑터는 데이터를 Entity 및 UseCase의 편리한 형식(Format) 에서 데이터베이스 및 웹에 적용 할 수있는 형식으로 변환합니다. 이 계층에는 MVP의 Presenter, MVVM의 ViewModel 및 게이트웨이 (= Repositories)가 포함됩니다. 즉 순수한 **비즈니스 로직**만을 담당하는 역할을 하게 됩니다.
+3. Interface Adapters (Presenters) : 인터페이스 어댑터는 데이터를 Entity 및 UseCase의 편리한 형식(Format) 에서 데이터베이스 및 웹에 적용 할 수있는 형식으로 변환합니다. 이 계층에는 MVP의 Presenter, MVVM의 ViewModel 및 게이트웨이 (= Repositories)가 포함됩니다. 즉 순수한 [**비즈니스 로직**](https://github.com/tnvnfdla1214/-Business_logic)만을 담당하는 역할을 하게 됩니다.
 4. Frameworks & Drivers (Web, DB) : 프레임워크와 드라이버는 웹 프레임 워크, 데이터베이스, UI, HTTP 클라이언트 등으로 구성된 가장 바깥 쪽 계층입니다.
 
  그림과 설명을 보고도 실제 안드로이드에서 사용하는 아키텍처 구조와 좀 다른 용어와 레이어 구조 때문에 햇갈릴 수 도 있을 겁니다. 예를들어 MVVM, MVP 같은 아키텍처를 주로 사용하는 안드로이드에서는 대부분 Entity 레이어 나누지 않고 Controller(인터페이스 어댑터) 등 직접적으로 접하지 않는 용어들이 사용되기 때문입니다. 또한 가장 바깥계층인  Frameworks & Drivers 에  DB, Web과 함께 UI 도 포함되어 있으므로 혼란을 일으킬 수 있습니다.
