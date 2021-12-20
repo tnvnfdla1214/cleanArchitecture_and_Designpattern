@@ -43,8 +43,10 @@ ViewModel 을 만드는 기준을 Activity 가 아닌 개별 View 를 기준으�
 ### 4 Layers
 <img src = "https://user-images.githubusercontent.com/48902047/146732189-bbbaa693-fe81-4363-8ab2-c34cbce3c98f.png">
 
-1. Presenters레이어(Interface Adapters) : Presenters레이어는 데이터를 Entity 및 UseCase의 편리한 형식(Format) 에서 데이터베이스 및 웹에 적용 할 수있는 형식으로 변환합니다. 이 계층에는 MVP의 Presenter, MVVM의 ViewModel 및 게이트웨이 (= Repositories)가 포함됩니다. 즉 순수한 [**비즈니스 로직**](https://github.com/tnvnfdla1214/-Business_logic)(사용자에게 보여지는 로직)만을 담당하는 역할을 하게 됩니다.
-2. Data 레이어 : 
+1. Presenters레이어(Interface Adapters) : Presenters레이어는 domain, data 모듈에 의존합니다.또한 프레젠테이션 계층은 UI와 관련된 코드를 캡슐화합니다. 모든 UI와 관련된 컴포넌트 또는 안드로이드 프레임워크와 관련된 코드들을 이 계층에서 다루게 된다.
+
+아무래도 UI / UX는 비즈니스 로직에 비해 상대적으로 변경할 일이 많다. 또한 UI와 관련된 유닛테스트는 어렵기 때문에 UI와 관련된 내용은 다른 코드에서 의존성이 없도록 최대한 독립적으로 만들어야 한다. UI 코드를 한 곳에서 관리함으로써 비즈니스 로직을 보호하고, 테스트도 쉽게 만든다. 즉 순수한 [**비즈니스 로직**](https://github.com/tnvnfdla1214/-Business_logic)(사용자에게 보여지는 로직)만을 담당하는 역할을 하게 됩니다.
+2. Data 레이어 : 네트워크를 포함한 데이터를 가져오는 역할을 합니다. 
 
 
 
