@@ -9,8 +9,8 @@
 다음으로 **개발 구조 상의 본질**이 있습니다. 데이터라는 하나의 레벨로 추상화를 했는데, 실제로는 내부에 SharedPreferences, Realm, SQLite를 모두 포함하고 있다면, 구조 상으로 변화가 일어날 수 있는 지점에 대해 생각하지 않고 분리하지 않아 문제가 발생할 수 있습니다. 가령 SharedPreferences를 바꿨는데 Realm을 불러오는 코드에 영향을 미칠 수도 있다면 변화가 일어나는 위치에 대한 고민이 부족했다고 할 수 있습니다.안드로이드 구조 상의 본질도 생각해야 합니다. 만약 화면에 보여주는 뷰의 생명주기를 액티비티에서 관리하므로 이런 부분에 맞게 코드 구조가 설계돼 있어야 합니다.
 
 ### Clean Architecture
-<img src="https://user-images.githubusercontent.com/48902047/145948874-b29e06a5-8b7b-4d89-b102-8515bb5560fc.png"></img>
-<img src="https://user-images.githubusercontent.com/48902047/145949084-1b99a6f1-eac0-4e67-800e-dc6750a7731f.png"></img>
+<img src="https://user-images.githubusercontent.com/48902047/146885039-ab4abd04-4bff-45cc-bd65-de4df5a5ceac.png"></img>
+<img src="https://user-images.githubusercontent.com/48902047/146885059-fc487ee9-5113-4457-89db-b77cc7efa6f1.png"></img>
 Uncle Bob으로 유명한 Robert Martin의 Clean Architecture를 읽고 안드로이드에 대해서도 고민하게 됐습니다. 양파 모양의 레이어 가장 바깥 쪽이 사용자와의 접접에 있는 Presentation 이고 가장 안쪽의 Entities가 사용자가 실제로 생각하는 개념 단위입니다. Clean Architecture에서는 서버 쪽 내용이지만 안드로이드에서도 이 원리를 적용시켜서 UI를 독립시키고 Database를 분리시키고, 외부적인 설정에 독립적인 구조를 적용하면 프레임워크에 의존적이지 않은 코드를 짤 수 있고, 테스트가 가능한 코드를 짤 수 있는 원리가 될 수 있습니다.
 
 Android에서도 Clean Architecture를 적용하려는 시도가 많습니다. 그 중 가장 유명한 글에서 위 그림처럼 레이어를 네 개로 분리했는데 그것이 클린 아키텍쳐의 근간입니다.
@@ -43,44 +43,60 @@ ViewModel 을 만드는 기준을 Activity 가 아닌 개별 View 를 기준으�
 ### 4 Layers
 <img src = "https://user-images.githubusercontent.com/48902047/146732189-bbbaa693-fe81-4363-8ab2-c34cbce3c98f.png">
 
-1. Presenters레이어(Interface Adapters) : Presenters레이어는 domain, data 모듈에 의존합니다.또한 프레젠테이션 계층은 UI와 관련된 코드를 캡슐화합니다. 모든 UI와 관련된 컴포넌트 또는 안드로이드 프레임워크와 관련된 코드들을 이 계층에서 다루게 된다.
+ 이 네 레이어 간의 의존성은 안쪽으로만 발생해야 합니다. 즉, 가장 하단부의 레이어일 수록 가장 의존성이 낮아야 합니다. 가량 프리젠테이션 레이어는 데이터 레이어를 알지만 데이터는 프리젠테이션을 몰라야 하며, 이 덕분에 맨 아래의 엔티티는 순수한 Java 내지는 Kotlin 모듈이 될 수 있습니다.
 
-아무래도 UI / UX는 비즈니스 로직에 비해 상대적으로 변경할 일이 많다. 또한 UI와 관련된 유닛테스트는 어렵기 때문에 UI와 관련된 내용은 다른 코드에서 의존성이 없도록 최대한 독립적으로 만들어야 한다. UI 코드를 한 곳에서 관리함으로써 비즈니스 로직을 보호하고, 테스트도 쉽게 만든다. 즉 순수한 [**비즈니스 로직**](https://github.com/tnvnfdla1214/-Business_logic)(사용자에게 보여지는 로직)만을 담당하는 역할을 하게 됩니다.
-2. Data 레이어 : 네트워크를 포함한 데이터를 가져오는 역할을 합니다. 
+이런 레이어의 분리 덕분에 본질을 정의할 때 어떤 데이터베이스에 저장될지, 어떤 뷰에서 보일지 고민하지 않고 Entity를 작성할 수 있고, 이에 대한 유스 케이스로 Domain 레이어를 작성할 수 있습니다. 또한 트랜잭션을 가져오는 것을 Data에서, 어떻게 보여줄 것인지를 Presentation에서 고민하면 됩니다.
 
+이제 각각의 레이어에 대해 더 자세히 살펴보겠습니다.
 
-
-
-
-
-
-
-
-
-1. Entities :  순수한 Java나 Kotlin 모듈로 안드로이드 모듈이 아니므로 안드로이드와의 의존성이 없습니다. 즉, 사용자가 생각하는 형태대로 도메인(비즈니스 로직)에서 파생되는 개념을 표현합니다. 만약 같은 서비스를 만든다면 Android, iOS, 서버 모두 같은 이름과 타입을 사용하는 동일한 형태여야 합니다.
+1. 엔티티 레이어 : 엔티티는 순수한 Java나 Kotlin 모듈로 안드로이드 모듈이 아니므로 안드로이드와의 의존성이 없습니다. 만약 to do 앱을 만든다고 할 때 아이템을 하나 눌러서 넘길 때 사용자는 Parcelable을 생각하지 않겠죠. 따라서 넘기는 데이터를 Parcelable로 정의하지 않아야 안드로이드와 독립적일 수 있습니다. 즉, 사용자가 생각하는 형태대로 도메인(비즈니스 로직)에서 파생되는 개념을 표현합니다. 만약 같은 서비스를 만든다면 Android, iOS, 서버 모두 같은 이름과 타입을 사용하는 동일한 형태여야 합니다. 코틀린으로 된 코드를 보여드리겠습니다.
+2. 
 <img src = "https://user-images.githubusercontent.com/48902047/145938704-551d226c-bc91-4201-a4ee-6d58d7f966f9.png" width="50%" height="50%">
-소비 내역에 카테고리라는 엔티티를 적용했습니다. 엔티티 레이어에 존재하는 개념으로, 어떤 테이블과 테이블을 조인하는 SQLite의 개념이 여기서는 들어가서는 안됩니다. 만약 그렇게 하면 객체 간의 관계를 지원하는 Realm으로 데이터 레이어를 바꾸는 순간 엔티티 레이어에 영향을 주기 때문입니다.엔티티는 비즈니스 규칙을 캡슐화합니다. 엔티티는 메서드를 갖는 객체일 수도 있지만 데이터 구조와 함수의 집합일 수도 있습니다. 가장 일반적이면서 고수준의 규칙을 캡슐화하게 됩니다. 외부가 변경되더라도 이러한 규칙이 변경될 가능성이 적습니다.
 
-2. Use cases : Use case란 내가 만들고자하는 시스템(혹은 서비스라고 하자)을 사용하는 클라이언트가 **그 시스템을 통해 하고자 하는 것**입니다. 예를 들어, '영화관' 이라는 서비스가 있다고 가정해봅시다. 영화관에서 손님(클라이언트)는 '영화 예매'를 할 수도 있고, '예매 취소'를 할 수도 있고, '환불', 심지어 '팝콘 사기'를 할 수도 있을 것입니다. 이 때, 이런 '영화 예매', '예매 취소', '환불', '팝콘 사기' 등등이, '영화관'이라는 시스템에 사용자가 요청할 수 있는, '영화관'의 Use case이다. Use Case는 이름만 보고 이게 무슨 기능을 가졌을지 짐작하고 구분할 수 있어야합니다.
-<img src = "https://user-images.githubusercontent.com/48902047/145939602-c0e77696-4682-4a6d-8338-a1c8f0d03d46.png">
+소비 내역에 카테고리라는 엔티티를 적용했습니다. 엔티티 레이어에 존재하는 개념으로, 어떤 테이블과 테이블을 조인하는 SQLite의 개념이 여기서는 들어가서는 안됩니다. 만약 그렇게 하면 객체 간의 관계를 지원하는 Realm으로 데이터 레이어를 바꾸는 순간 엔티티 레이어에 영향을 주기 때문입니다.
 
-3. Interface Adapters (Presenters) : 인터페이스 어댑터는 데이터를 Entity 및 UseCase의 편리한 형식(Format) 에서 데이터베이스 및 웹에 적용 할 수있는 형식으로 변환합니다. 이 계층에는 MVP의 Presenter, MVVM의 ViewModel 및 게이트웨이 (= Repositories)가 포함됩니다. 즉 순수한 [**비즈니스 로직**](https://github.com/tnvnfdla1214/-Business_logic)(사용자에게 보여지는 로직)만을 담당하는 역할을 하게 됩니다.
-4. Frameworks & Drivers (Web, DB) : 프레임워크와 드라이버는 웹 프레임 워크, 데이터베이스, UI, HTTP 클라이언트 등으로 구성된 가장 바깥 쪽 계층입니다.
+2. 도메인 레이어 : 도메인 레이어도 순수한 Java나 Kotlin 모듈입니다. 그 이유는 도메인 레이어에서 일어나는 이유는 실제로 사용자가 하는 일련의 행동들 즉 유스 케이스를 적용하는 것인데 이 역시 안드로이드에 의존할 필요가 없기 때문입니다. 가령 소비 내역을 불러오는 유스 케이스는 *getTransactions* 함수의 리턴 타입을 *List<Transaction>*과 같이 정의하는 인터페이스만 있으면 됩니다.
+ 
+<img src = "https://user-images.githubusercontent.com/48902047/146888735-d170d0b8-d598-4433-8137-c779a58a0fcc.png" width="50%" height="50%">
 
- 그림과 설명을 보고도 실제 안드로이드에서 사용하는 아키텍처 구조와 좀 다른 용어와 레이어 구조 때문에 햇갈릴 수 도 있을 겁니다. 예를들어 MVVM, MVP 같은 아키텍처를 주로 사용하는 안드로이드에서는 대부분 Entity 레이어 나누지 않고 Controller(인터페이스 어댑터) 등 직접적으로 접하지 않는 용어들이 사용되기 때문입니다. 또한 가장 바깥계층인  Frameworks & Drivers 에  DB, Web과 함께 UI 도 포함되어 있으므로 혼란을 일으킬 수 있습니다.
+뱅크샐러드에서 지원하는 은행의 목록을 가져오는 유스 케이스입니다. 인터페이스로 정의된 Repository를 주입받습니다. BanksRepository는 도메인 레이어에 존재하는 인터페이스입니다. 유스 케이스를 구성할 때는 데이터베이스가 뭔지 고민하지 않고 도메인에서 정의한 적당한 리파지토리를 이용하서 구축하므로 코드가 사고의 흐름처럼 구성될 수 있습니다. domain 모듈은 다음과 같은 코드를 포함합니다.
 
-그래서 다음과 같이 안드로이드에 맞춘 이해하기 쉽게 그린 클린아키텍처 구조 그림들이 있습니다.
++ Entity  : 특정 영역을 표현하는 객체. ex) Pojo, VO, DTO 등
++ UseCase : Use case란 내가 만들고자하는 시스템(혹은 서비스라고 하자)을 사용하는 클라이언트가 **그 시스템을 통해 하고자 하는 것**입니다. 예를 들어, '영화관' 이라는 서비스가 있다고 가정해봅시다. 영화관에서 손님(클라이언트)는 '영화 예매'를 할 수도 있고, '예매 취소'를 할 수도 있고, '환불', 심지어 '팝콘 사기'를 할 수도 있을 것입니다. 이 때, 이런 '영화 예매', '예매 취소', '환불', '팝콘 사기' 등등이, '영화관'이라는 시스템에 사용자가 요청할 수 있는, '영화관'의 Use case이다. Use Case는 이름만 보고 이게 무슨 기능을 가졌을지 짐작하고 구분할 수 있어야합니다. Entity와 함께 비즈니스 로직을 수행합니다.
++ Repository 인터페이스 : 데이터베이스, 원격 서버와 같은 데이터 소스에 접근합니다.
+domain 모듈은 비즈니스 로직들을 한 계층에서 관리하는데 초점을 맞춥니다. 이를 통해 코드를 깨끗하게 관리하고, 단일 책임 원칙(SRP;Single Responsibility Principle)에 부합하는 코드를 작성하기가 쉬워집니다.
+ 
+3. 데이터 레이어 : 데이터 레이어에서 하는 한 가지 일을 고른다면 도메인 레이어를 알고 있으므로 도메인 레이어에 정의된 Repository를 실제로 구현을 하는 것입니다. 또한 여기에서는 Data Source에의 의존성이 생기므로 안드로이드 의존성이 생길 수 있습니다.
+ 
+ <img src = "https://user-images.githubusercontent.com/48902047/146889483-ecb50d48-3864-47c5-a0d4-c17f211c6be3.png" width="50%" height="50%">
 
-#### MVP architecture
-<img src="https://user-images.githubusercontent.com/48902047/142761165-bfb23b01-0e13-4609-8aac-6422e0b7a02b.png"></img>
-#### Clean Artitecture 구조도
-<img src="https://user-images.githubusercontent.com/48902047/142761182-0b99f655-4c4a-48bc-89c6-d33c4a8a1eb0.png"></img>
-<img src="https://user-images.githubusercontent.com/48902047/145948768-c8fe4732-f0e6-4f08-8c96-dc3110cddfa5.png"></img>
-<img src="https://user-images.githubusercontent.com/48902047/145948874-b29e06a5-8b7b-4d89-b102-8515bb5560fc.png"></img>
-<img src="https://user-images.githubusercontent.com/48902047/145949084-1b99a6f1-eac0-4e67-800e-dc6750a7731f.png"></img>
+BanksRepository를 상속받아 정의한 모습입니다. 저희는 데이터베이스로 Realm을 사용하므로, Realm의 인스턴스를 가져오고 Realm에 들어갈 데이터 모델을 가지고 모두 넣었습니다. 여기서 데이터 모델은 데이터 레이어에서 정의한 Realm 오브젝트로 명확히 데이터베이스에 저장할 것을 내포하고 있습니다.
 
-안드로이드용으로 이해하기 쉽게 만들어진 클린아키텍처 구조는 Entity 레이러를 따로 두지않고 일반적으로 Presentation, Domain, Data 총 3개의 계층으로 크게 나눠지게 됩니다. 그리고 바로 위 그림을 보면 알 수 있듯이 Presentation -> Domain 방향으로 의존성이 있습니다.
+<img src = "https://user-images.githubusercontent.com/48902047/146889764-9ffe9a54-76e8-4dc2-9998-a79b99ecc11b.png" width="50%" height="50%">
+ 
+도메인 레이어에서 데이터 모델을 모르므로 리턴 타입은 엔티티에 맞게 돌려줘야 합니다. 이를 위해 BankEntityMapper을 이용했습니다. Bank 데이터 모델을 데이터 엔티티로 바꿔줍니다.
 
-1. Presentation : UI(Activity, Fragment), Presenter 및 ViewModel을 포함합니다. 즉 화면과 입력에 대한 처리 등 UI와 직접적으로 관련된 부분을 담당합니다. 또한 Presentation 레이어는 Domain과 Data 레이어를 포함하고 있다는 특징이 있습니다.
-2. Domain : 애플리케이션의 비즈니스 로직을 포함하고 비즈니스 로직에서 필요한 Model 과 UseCase를 포함하고 있습니다.
-3. Data : Repositoy 구현체, Cache, Room DB, Dao, Model 서버API(Retrofit2) 을 포함하고 있으며 로컬 또는 서버 API와 통신하여 데이터를 CRUD 하는 역할을 합니다. 또한 Mapper 클래스도 포함하고 있는데 DB로 부터 받아온 데이터모델과 UI에 맞는 데이터모델간의 변환을 해주는 역할을 합니다. 추가로 Domain 레이어를 포함하고있다는 특징이 있습니다.
+이런 구조를 통해 데이터베이스로 Realm을 사용하다가 SQLite로 변환한 경우 데이터의 테이블을 정의한 클래스와, 데이터를 가져오던 Repository만이 바뀌게 됩니다. 즉, 데이터가 바뀌는 위치에 따른 데이터의 변화만 강제할 수 있습니다.
+
+ <img src = "https://user-images.githubusercontent.com/48902047/146889899-a4ec29c1-01ab-4732-8809-feb23ed348d8.png" width="50%" height="50%">
+
+앞서는 로컬 데이터베이스에 저장된 은행 엔티티를 가져오는 코드였는데, 서버에서 최초로 받아오는 경우에도 도메인에 존재하는 인터페이스를 그대로 유지할 수 있습니다. Retrofit으로 네트워크에서 값을 가져오며, 여기서의 Bank는 서버에서 JSON으로 보내오는 응답을 정의한 것입니다.
+
+하나의 유스 케이스를 사용할 때 앱 초기에 서버에서 데이터를 받아와야 하는지, 로컬 데이터베이스에서 받아와야 하는지 하는 부분은 프리젠테이션 레벨에서 어떤 Repository를 주입할 지에 따라 결정됩니다.
+
+4. 프리젠테이션 레이어 : 마지막 레이어인 프리젠테이션 레이어는 UI 레벨에서의 처리이고, Android 의존성이 높습니다. 저희는 MVP 패턴에 따라 View와 Presenter 모습을 사용했습니다.
+ 
+<img src = "https://user-images.githubusercontent.com/48902047/146890082-75bfbaf3-fd2b-44c4-841e-388af172ee07.png" width="50%" height="50%">
+
+프래그먼트의 타입을 BaseFragment로 정의해서 타입을 강제하고 이 프래그먼트가 특정 OrganizationView를 구현하게 하고, View가 presenter를 가집니다. 생명주기는 뷰가 생성됐을 때 presenter에 onViewCreated 함수를 만들었는데, presenter에 어떤 함수를 호출하는지는 뷰 레벨에서 담당하므로 네이밍을 뷰에서 알 수 있는 것으로 만들었습니다. 버튼이 눌릴 때도 의미상 맞는 onNextButtonClicked로 네이밍했습니다. 이런 네이밍으로 더 나은 코드 구조를 만들 수 있다고 생각합니다. 만약 레이아웃에 버튼이 여러 개 필요한 경우 presenter에 일련의 함수를 호출하는 식으로 구성하면 이 변화 때문에 presenter 코드가 다시 변화해야 하는 불상사가 발생할 수도 있습니다.
+ 
+ ![image](https://user-images.githubusercontent.com/48902047/146890221-3a7a9a0d-3d21-4640-969c-b29ade419d8d.png)
+
+ 따라서 위 코드처럼 presenter가 생성되는 시점에서 유스 케이스를 주입받을 수 있는 구조를 만들었습니다. 그 이유는 테스트가 가능한 코드를 만들기 위해서입니다. GetBanks에서 데이터 레이어 중 맥락에 맞는 BanksNetworkRepository를 주입했고, onDestroy일 때 unsubscribe를 했습니다. 또한 onViewCreated일 때 getBanks를 이용해서 유스 케이스의 값을 가져오고 view.showBanks 처럼 코드를 작성해서 내부 로직이 바뀌더라도 뷰는 은행의 리스트를 보여줄 수 있는 구조를 만들었습니다. 따라서 이 구조를 따르면 뷰의 코드는 바뀔 필요가 없습니다.
+ 
+ ![image](https://user-images.githubusercontent.com/48902047/146891656-a658acf5-f5fb-4a61-aee6-4324ec802918.png)
+
+앞서 말씀드린 Parcelable의 예로 돌아가서, 데이터 레이어에도 모델이 존재하고, 엔티티 레벨에서는 개념에 대한 모델이, 프리젠테이션 레벨에서도 모델이 존재합니다. 위 코드는 뷰모델인데, 가끔 Parcelable로 넘길 필요가 있거나, 사용자의 개념 단위는 아니지만 개발 측면에서 화면에 보여줄때 데이터를 이런 형태로 조합하면 편하겠다고 생각할 때 만들어서 사용하고 있습니다. 뷰모델의 매퍼를 만들어서 엔티티로부터 변환하거나 엔티티로 변환하고 있습니다.
+
+### 결론
+저희는 이런 형태를 지향했을때 변화의 위치가 명확해서 생산성을 증대시킬 수 있었고, 변화에 좀더 즐거운 마음으로 대응할 수 있었습니다. 저희는 좋은 코드의 구조가 좋은 제품으로 이어진다고 믿기에 이런 아키텍처를 적용했습니다. 그리고 이런 복잡하다면 복잡한 아키텍처 도입의 진입 장벽보다 변화에 적응할 수 있음에서 오는 유연함이 더 값지다고 생각해서 이런 아키텍처를 학습하였습니다.
