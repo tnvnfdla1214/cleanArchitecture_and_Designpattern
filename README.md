@@ -61,6 +61,35 @@ ViewModel 을 만드는 기준을 Activity 가 아닌 개별 View 를 기준으�
 
 소비 내역에 카테고리라는 엔티티를 적용했습니다. 엔티티 레이어에 존재하는 개념으로, 어떤 테이블과 테이블을 조인하는 SQLite의 개념이 여기서는 들어가서는 안됩니다. 만약 그렇게 하면 객체 간의 관계를 지원하는 Realm으로 데이터 레이어를 바꾸는 순간 엔티티 레이어에 영향을 주기 때문입니다.
 
+#### (상식) Model과 entity의 차이
+1. model(DTO) : Data Transfer Object)로서 계층(Layer)간 데이터 교환을 위해 사용하는 객체입니다. 데이터 교환만을 위해 사용하므로 로직을 갖지 않고, getter/setter 메소드만 갖습니다.
+
+```kotlin
+//UserRepository.kt
+class RGBColorDto {
+   private int red;
+   private int green;
+   private int blue;
+  
+   public RGBColor(int red, int green, int blue) {
+      this.red = red;
+      this.green = green;
+      this.blue = blue;
+   }
+  
+   public int getRed() {
+      return red;
+   }
+  
+   public int setRed(int red) {
+      this.red = red;
+   }
+   ...
+}
+```
+로직은 없고, 데이터를 담고, 꺼내는 getter/setter 메소드만 담습니다.
+
+
 #### 2. 도메인 레이어
 도메인 레이어도 순수한 Java나 Kotlin 모듈입니다. 그 이유는 도메인 레이어에서 일어나는 이유는 실제로 사용자가 하는 일련의 행동들 즉 유스 케이스를 적용하는 것인데 이 역시 안드로이드에 의존할 필요가 없기 때문입니다. 가령 소비 내역을 불러오는 유스 케이스는 *getTransactions* 함수의 리턴 타입을 *List\<Transaction>* 과 같이 정의하는 인터페이스만 있으면 됩니다.
  
@@ -70,11 +99,9 @@ ViewModel 을 만드는 기준을 Activity 가 아닌 개별 View 를 기준으�
 
 + Entity  : 특정 영역을 표현하는 객체. ex) Pojo, VO, DTO 등
 + UseCase : Use case란 내가 만들고자하는 시스템(혹은 서비스라고 하자)을 사용하는 클라이언트가 **그 시스템을 통해 하고자 하는 것**입니다. 예를 들어, '영화관' 이라는 서비스가 있다고 가정해봅시다. 영화관에서 손님(클라이언트)는 '영화 예매'를 할 수도 있고, '예매 취소'를 할 수도 있고, '환불', 심지어 '팝콘 사기'를 할 수도 있을 것입니다. 이 때, 이런 '영화 예매', '예매 취소', '환불', '팝콘 사기' 등등이, '영화관'이라는 시스템에 사용자가 요청할 수 있는, '영화관'의 Use case이다. Use Case는 이름만 보고 이게 무슨 기능을 가졌을지 짐작하고 구분할 수 있어야합니다. Entity와 함께 비즈니스 로직을 수행합니다.
-+ Repository 인터페이스 : 데이터베이스, 원격 서버와 같은 데이터 소스에 접근합니다.
-domain 모듈은 비즈니스 로직들을 한 계층에서 관리하는데 초점을 맞춥니다. 이를 통해 코드를 깨끗하게 관리하고, 단일 책임 원칙(SRP;Single Responsibility Principle)에 부합하는 코드를 작성하기가 쉬워집니다.
  
 #### 3. 데이터 레이어 
-데이터 레이어에서 하는 한 가지 일을 고른다면 도메인 레이어를 알고 있으므로 도메인 레이어에 정의된 Repository를 실제로 구현을 하는 것입니다. 또한 여기에서는 Data Source에의 의존성이 생기므로 안드로이드 의존성이 생길 수 있습니다.
+데이터 레이어에서 하는 한 가지 일을 고른다면 도메인 레이어를 알고 있으므로 도메인 레이어에 정의된 [Repository 페턴](https://github.com/tnvnfdla1214/Repository_-pattern) 으로 설계된 Repository를 실제로 구현을 하는 것입니다. 또한 여기에서는 Data Source에의 의존성이 생기므로 안드로이드 의존성이 생길 수 있습니다.
  
  <img src = "https://user-images.githubusercontent.com/48902047/146889483-ecb50d48-3864-47c5-a0d4-c17f211c6be3.png" width="50%" height="50%">
 
