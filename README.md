@@ -16,7 +16,7 @@
 <img src="https://user-images.githubusercontent.com/48902047/146885039-ab4abd04-4bff-45cc-bd65-de4df5a5ceac.png" width="50%" height="50%"></img>
 <img src="https://user-images.githubusercontent.com/48902047/146885059-fc487ee9-5113-4457-89db-b77cc7efa6f1.png"></img>
 
-Uncle Bob으로 유명한 Robert Martin의 Clean Architecture를 읽고 안드로이드에 대해서도 고민하게 됐습니다. 양파 모양의 레이어 가장 바깥 쪽이 사용자와의 접접에 있는 Presentation 이고 가장 안쪽의 Entities가 사용자가 실제로 생각하는 개념 단위입니다. Clean Architecture에서는 서버 쪽 내용이지만 안드로이드에서도 이 원리를 적용시켜서 UI를 독립시키고 Database를 분리시키고, 외부적인 설정에 독립적인 구조를 적용하면 프레임워크에 의존적이지 않은 코드를 짤 수 있고, 테스트가 가능한 코드를 짤 수 있는 원리가 될 수 있습니다.
+Uncle Bob으로 유명한 Robert Martin의 [Clean Architecture 블로그](http://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)에서 시작되었습니다. 양파 모양의 레이어 가장 바깥 쪽이 사용자와의 접접에 있는 Presentation 이고 가장 안쪽의 Entities가 사용자가 실제로 생각하는 개념 단위입니다. Clean Architecture에서는 서버 쪽 내용이지만 안드로이드에서도 이 원리를 적용시켜서 UI를 독립시키고 Database를 분리시키고, 외부적인 설정에 독립적인 구조를 적용하면 프레임워크에 의존적이지 않은 코드를 짤 수 있고, 테스트가 가능한 코드를 짤 수 있는 원리가 될 수 있습니다.
 
 Android에서도 Clean Architecture를 적용하려는 시도가 많습니다. 그 중 가장 유명한 글에서 위 그림처럼 레이어를 네 개로 분리했는데 그것이 클린 아키텍쳐의 근간입니다.
 
