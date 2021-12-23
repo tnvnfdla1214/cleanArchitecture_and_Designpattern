@@ -50,7 +50,7 @@ ViewModel 을 만드는 기준을 Activity 가 아닌 개별 View 를 기준으�
 안드로이드 개발을 위한 더 이해하기 쉬운 클린아키텍처 구조 그림도가 있지만 뒤에서 살펴보도록 하고 먼저 오리지널 클린아키텍처의 각 계층의 역할에 대해 설명하면 다음과 같습니다.
 
 ### 4 Layers
-<img src = "https://user-images.githubusercontent.com/48902047/146732189-bbbaa693-fe81-4363-8ab2-c34cbce3c98f.png" width="50%" height="50%">
+<img src = "https://user-images.githubusercontent.com/48902047/146732189-bbbaa693-fe81-4363-8ab2-c34cbce3c98f.png">
 
  이 네 레이어 간의 의존성은 안쪽으로만 발생해야 합니다. 즉, 가장 하단부의 레이어일 수록 가장 의존성이 낮아야 합니다. 가량 프리젠테이션 레이어는 데이터 레이어를 알지만 데이터는 프리젠테이션을 몰라야 하며, 이 덕분에 맨 아래의 엔티티는 순수한 Java 내지는 Kotlin 모듈이 될 수 있습니다.
 
