@@ -26,7 +26,6 @@ Android에서도 Clean Architecture를 적용하려는 시도가 많습니다. �
 
 <img src="https://user-images.githubusercontent.com/48902047/147200950-e28803fa-1107-42b3-ad4b-4cea7d5b8adf.png"></img>
 <img src="https://user-images.githubusercontent.com/48902047/147201071-11e917da-ab69-4f38-add6-11c68ab0c67c.png"></img>
-<img src="https://user-images.githubusercontent.com/48902047/147207860-1dbf2cb0-afd2-4f5c-99a6-42559a575820.png"></img>
 
 
 이렇게 계층을 나누는 이유는 계층을 분리하여 관심사를 분리시키기 위해서이며 이런 아키텍처가 동작하기 위해서는 **의존성 규칙**을 지켜야 합니다. 한마디로 **각 분리된 클래스가 한가지 역할만 하고 서로 의존을 어떻게 할지 규칙이 정해져있고 지켜야한다는 말**입니다.
